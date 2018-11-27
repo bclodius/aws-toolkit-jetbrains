@@ -60,6 +60,29 @@ class ResourceSelectorTest {
     }
 
     @Test
+    fun comboBoxPopulation_updateStateToDesired() {
+        val items = listOf("foo", "bar", "baz")
+        var lock = true
+        comboBox.isEnabled = false
+        comboBox.populateValues(updateStatus = false) {
+            while (lock) {
+                Thread.sleep(100L)
+            }
+            items
+        }
+        // Wait for the ComboBox to be in loading status.
+        while (comboBox.loadingStatus != ResourceSelector.ResourceLoadingStatus.LOADING) {
+            Thread.sleep(100L)
+        }
+        // In the loading status, even enabling the ComboBox, the status will not be changed until the loading finishes.
+        comboBox.isEnabled = true
+        assertThat(comboBox.isEnabled).isEqualTo(false)
+        lock = false
+        waitForPopulationComplete(comboBox, items.size)
+        assertThat(comboBox.isEnabled).isEqualTo(true)
+    }
+
+    @Test
     fun comboBoxPopulation_updateStateToTrueWhenItemsAreNotEmpty() {
         val items = listOf("foo", "bar", "baz")
 

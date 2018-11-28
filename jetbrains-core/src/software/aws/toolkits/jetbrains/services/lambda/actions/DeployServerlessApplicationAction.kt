@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.actionSystem.PlatformDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.runInEdt
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.ModuleUtil
 import com.intellij.openapi.project.DumbAwareAction
@@ -17,6 +18,7 @@ import icons.AwsIcons
 import software.amazon.awssdk.services.cloudformation.CloudFormationClient
 import software.aws.toolkits.jetbrains.core.awsClient
 import software.aws.toolkits.jetbrains.core.credentials.ProjectAccountSettingsManager
+import software.aws.toolkits.jetbrains.core.stack.openStack
 import software.aws.toolkits.jetbrains.services.cloudformation.executeChangeSetAndWait
 import software.aws.toolkits.jetbrains.services.lambda.deploy.DeployServerlessApplicationDialog
 import software.aws.toolkits.jetbrains.services.lambda.deploy.SamDeployDialog
@@ -79,6 +81,9 @@ class DeployServerlessApplicationAction : DumbAwareAction(
         if (!deployDialog.isOK) return
 
         val cfnClient = project.awsClient<CloudFormationClient>()
+        runInEdt {
+            openStack(project, stackName)
+        }
         ApplicationManager.getApplication().executeOnPooledThread {
             try {
                 cfnClient.executeChangeSetAndWait(stackName, deployDialog.changeSetName)

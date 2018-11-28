@@ -146,7 +146,9 @@ class EditFunctionDialog(
         if (mode == UPDATE_CODE) {
             UIUtil.uiChildren(view.configurationSettings).filter { it !== view.handler && it !== view.handlerLabel }.forEach { it.isVisible = false }
         }
-        view.runtime.populateValues(default = runtime) { Runtime.knownValues() }
+
+        view.setRuntimes(Runtime.knownValues())
+        view.runtime.selectedItem = runtime
 
         view.xrayEnabled.isSelected = xrayEnabled
 
